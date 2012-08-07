@@ -1,8 +1,27 @@
 <?php
 /**
- * Description of MImageBehavior
+ * Behavior for managing image
  *
- * @author mlapko
+ * @author mlapko <maxlapko@gmail.com>
+ * @version 0.1
+ * 
+ * 
+ *   public function behaviors()
+ *   {
+ *       return array(
+ *          'MImage' => array(
+ *               'class'          => 'ext.image_processor.MImageBehavior',
+ *               'imageProcessor' => 'image' // image processor component name 
+ *           )
+ *       );
+ *   }
+ *   
+ *   echo $model->getImagePath('image', 'preset'); // preset = orig it is original file
+ *   echo $model->getImageUrl('image', 'preset', true);
+ *   $model->uploadImage(CUploadedFile::getInstance($model, 'avatar'), 'avatar');
+ *   $model->deleteImage('avatar'); or $model->deleteImage('avatar', 'preset'); 
+ *   
+ * 
  */
 class MImageBehavior extends CBehavior
 {
@@ -30,9 +49,9 @@ class MImageBehavior extends CBehavior
      * 
      * @return string 
      */
-    public function getImageUrl($attribute, $preset)
+    public function getImageUrl($attribute, $preset, $forceProcess = null)
     {
-        return Yii::app()->getComponent($this->imageProcessor)->getImageUrl($this->getOwner()->$attribute, $preset, get_class($this->getOwner()));
+        return Yii::app()->getComponent($this->imageProcessor)->getImageUrl($this->getOwner()->$attribute, $preset, get_class($this->getOwner()), $forceProcess);
     }   
     
     /**
@@ -50,4 +69,39 @@ class MImageBehavior extends CBehavior
         }
         return false;
     }
+    
+    /**
+     * Delete image for 
+     * @param string $attribute
+     * @return boolean 
+     */
+    public function deleteImage($attribute, $preset = null)
+    {        
+        if (!empty($this->getOwner()->$attribute)) {
+            if ($preset !== null) {
+                $this->_unlinkFile($this->getImagePath($attribute, $preset));               
+            } else {
+                $this->_unlinkFile($this->getImagePath($attribute, 'orig'));
+                $keys = array_keys(Yii::app()->getComponent($this->imageProcessor)->presets);
+                foreach ($keys as $preset) {
+                    $this->_unlinkFile($this->getImagePath($attribute, $preset));
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Delete file if exists 
+     * @param string $filename 
+     */
+    private function _unlinkFile($filename)
+    {
+        if (file_exists($filename)) {
+            unlink($filename);
+        }
+    }
+    
+    
 }

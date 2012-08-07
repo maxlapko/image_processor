@@ -4,6 +4,17 @@
  * Description of MImageValidator
  *
  * @author mlapko
+ * 
+ * 
+ *  public function rules()
+ *  {
+ *      return array(
+ *           // ....
+ *           array('image', 'MImageValidator', 'types' => array('jpg', 'png', 'jpeg', 'gif'), 'minSize' => 1024, 'minWidth' => 1024, 'minHeight' => 2000),
+ *           // ....
+ *       );
+ *   }
+ * 
  */
 class MImageValidator extends CFileValidator
 {

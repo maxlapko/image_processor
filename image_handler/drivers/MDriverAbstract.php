@@ -70,7 +70,7 @@ abstract class MDriverAbstract extends CComponent
      * @param mixed $background
      * @return \MDriverAbstract 
      */
-    abstract public function rotate($degrees, $background = '#000000');
+    abstract public function rotate($degrees, $backgroundColor = '#000000');
     
     
     /**

@@ -87,12 +87,12 @@ class MDriverImageMagic extends MDriverAbstract
         return $this;
     }
 
-    public function rotate($degrees, $background = '#000000')
+    public function rotate($degrees, $backgroundColor = '#000000')
     {
         $this->_checkLoaded();
 
         $degrees = (int) $degrees;
-        $this->_image->rotateimage(new ImagickPixel($background), $degrees);
+        $this->_image->rotateImage(new ImagickPixel($backgroundColor), $degrees);
         
         $geometry = $this->_image->getImageGeometry();
         $this->_width = $geometry['width'];

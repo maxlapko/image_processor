@@ -5,6 +5,7 @@
  * @author Max Lapko <maxlapko@gmail.com>
  * @version 0.1
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
+ *  
  */
 class MImageHandler extends CApplicationComponent
 {    

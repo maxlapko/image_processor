@@ -3,7 +3,49 @@
 /**
  * Description of MImageProcessor
  *
- * @author mlapko
+ * @author mlapko <maxlapko@gmail.com>
+ * @version 0.1
+ * 
+ * //config main.php
+ * 'import' => array(
+ *     'ext.image_processor.*',
+ *     'ext.image_processor.image_handler.*',
+ * ),
+ * 
+ * 'components' => array(
+ *     //......
+ *     'image' => array(
+ *         'imagePath'    => 'webroot.files.img', //save images to this path    
+ *         'imageUrl'     => '/files/img/',
+ *         'fileMode'     => 0777,
+ *         'imageHandler' => array(
+ *             'class' => 'ext.image_processor.image_handler.MImageHandler',
+ *             'driver' => 'MDriverImageMagic', // MDriverGD
+ *         ),
+ *         'forceProcess' => true, // process image when we call getImageUrl
+ *         'afterUploadProcess' => array(
+ *             'condition' => array('maxWidth' => 1280, 'maxHeight' => 1280), // optional
+ *             'actions'   => array(
+ *                 resize' => array('width' => 1024, 'height' => 768)
+ *                 // .....
+ *             ) 
+ *         ),
+ *         'presets' => array(
+ *             'preset1' => array(
+ *                 'thumb' => array('width' => 100, 'height' => 100)
+ *             ),
+ *             'preset2' => array(
+ *                 'resize' => array('width' => 800, 'height' => 600),
+ *                 'flip'   => array('mode' => 1),
+ *                 'rotate' => array('degrees' => 90, 'backgroundColor' => '#000000'),
+ *                 'resizeCanvas' => array('width' => 1024, 'height' => '768'),
+ *             ),
+ *             // ......
+ *         ),
+ *     ),
+ * ),
+ * 
+ * 
  */
 class MImageProcessor extends CApplicationComponent
 {    
@@ -34,8 +76,14 @@ class MImageProcessor extends CApplicationComponent
     public $presets = array();
     
     /**
-     *  
-     * @var array maxWidth, minWidth, actions    
+     * File mode for new files
+     * @var integer 
+     */
+    public $fileMode = 0777;
+    
+    /**
+     * Process image after upload 
+     * @var array condition(maxWidth, maxHeight), actions    
      */
     public $afterUploadProcess;
     
@@ -146,10 +194,10 @@ class MImageProcessor extends CApplicationComponent
         $actions = $this->_getPreset($preset);
         $image = $this->getImageHandler()->load($fullFilename);
         $this->_process($image, $actions);        
-        if (isset($params['newFilename'])) {
+        if (isset($params['save']['newFilename'])) {
             $this->_createDir(dirname($params['newFilename']), false);
             $image->save($params['newFilename']);            
-        } elseif (isset($params['namespace'])) {
+        } elseif (isset($params['save']['namespace'])) {
             $filename = $this->getImagePath($fullFilename, $preset, $params['namespace']);
             $this->_createDir(dirname($filename), false);
             $image->save($filename);
@@ -231,12 +279,12 @@ class MImageProcessor extends CApplicationComponent
     {
         $p = $this->_afterUploadProcess;
         $image = $this->getImageHandler()->load($directory . '/' . $filename);                
-        if (isset($p['actions']) && 
+        if (isset($p['actions']) && (!isset($p['condition']) ||
             (
-                (isset($p['maxWidth']) && $image->getWidth() > $p['maxWidth']) || 
-                (isset($p['maxHeight']) && $image->getHeight() > $p['maxHeight'])
+                (isset($p['condition']['maxWidth']) && $image->getWidth() > $p['condition']['maxWidth']) || 
+                (isset($p['condition']['maxHeight']) && $image->getHeight() > $p['condition']['maxHeight'])
             )
-        ) {            
+        )) {            
             copy($directory . '/' . $filename, $directory . '/backup_' . $filename);
             $this->_process($image, $p['actions']);
             $image->save($directory . '/' . $filename);
@@ -253,8 +301,8 @@ class MImageProcessor extends CApplicationComponent
     {
         $directory = $prefix ? Yii::getPathOfAlias($this->imagePath) . $subDir : $subDir;
         if (!file_exists($directory)) {
-            mkdir($directory, 0777, true);
-            chmod($directory, 0777);
+            mkdir($directory, $this->fileMode, true);
+            chmod($directory, $this->fileMode);
         }
         return $directory;
     }
