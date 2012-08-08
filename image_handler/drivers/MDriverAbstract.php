@@ -3,7 +3,7 @@
 /**
  * @author mlapko <maxlapko@gmail.com> 
  */
-abstract class MDriverAbstract extends CComponent
+abstract class MDriverAbstract extends CComponent implements IMDriver
 {
     /**
      * 
@@ -108,24 +108,7 @@ abstract class MDriverAbstract extends CComponent
      * @return \MDriverAbstract 
      */
     abstract public function resizeCanvas($width, $height, $backgroundColor = '#FFFFFF');
-    
-    
-    /**
-     * @var mixed $format 
-     * @var integer $jpegQuality 
-     */
-    abstract public function show($format = false, $jpegQuality = 75);
-    
-    /**
-     *
-     * @param string|boolean $file
-     * @param mixed $format
-     * @param integer $jpegQuality
-     * @param boolean $touch
-     * @return \MDriverAbstract 
-     */
-    abstract public function save($file = false, $format = false, $jpegQuality = 75, $touch = false);
-    
+  
     
     abstract protected function _checkLoaded();
     

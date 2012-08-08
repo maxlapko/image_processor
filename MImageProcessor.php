@@ -15,6 +15,7 @@
  * 'components' => array(
  *     //......
  *     'image' => array(
+ *         'class'        => 'ext.image_processor.MImageProcessor',
  *         'imagePath'    => 'webroot.files.img', //save images to this path    
  *         'imageUrl'     => '/files/img/',
  *         'fileMode'     => 0777,
@@ -26,7 +27,7 @@
  *         'afterUploadProcess' => array(
  *             'condition' => array('maxWidth' => 1280, 'maxHeight' => 1280), // optional
  *             'actions'   => array(
- *                 resize' => array('width' => 1024, 'height' => 768)
+ *                 'resize' => array('width' => 1024, 'height' => 768)
  *                 // .....
  *             ) 
  *         ),
@@ -55,6 +56,10 @@ class MImageProcessor extends CApplicationComponent
      */
     public $imagePath = 'webroot.files.img';
     
+    /**
+     * Image url
+     * @var string 
+     */
     public $imageUrl = '/files/img/';
     
     /**
@@ -100,7 +105,7 @@ class MImageProcessor extends CApplicationComponent
     public function getImageHandler()
     {
         if ($this->_handler === null) {
-            $this->_handler = Yii::createComponent($this->imageHandler);
+            $this->_handler = Yii::createComponent($this->imageHandler);            
             $this->_handler->init();
         }
         return $this->_handler;
@@ -155,10 +160,11 @@ class MImageProcessor extends CApplicationComponent
             !file_exists($fullName = $this->getImagePath($filename, $preset, $namespace))
         ) {
             $file = file_exists($filename) ? $filename : $this->getImagePath($filename, 'orig', $namespace);
-            $this->process($file, $preset, array('newFilename' => $fullName));
+            $this->process($file, $preset, array('save' => array('newFilename' => $fullName)));
         }
+        $filename = basename($filename);
         return Yii::app()->getBaseUrl(true) . $this->imageUrl . $namespace . '/' . $preset . '/' .
-            $this->getSubDir($filename) . '/' . basename($filename);
+            $this->getSubDir($filename) . '/' . $filename;
     }
     
     /**
@@ -173,8 +179,9 @@ class MImageProcessor extends CApplicationComponent
         if (!$filename) {
             return '';
         }
+        $filename = basename($filename);
         return Yii::getPathOfAlias($this->imagePath) . '/' . $namespace . '/' . $preset . '/' . 
-            $this->getSubDir($filename) . '/' . basename($filename);
+            $this->getSubDir($filename) . '/' . $filename;
     }
     
     /**
@@ -195,10 +202,10 @@ class MImageProcessor extends CApplicationComponent
         $image = $this->getImageHandler()->load($fullFilename);
         $this->_process($image, $actions);        
         if (isset($params['save']['newFilename'])) {
-            $this->_createDir(dirname($params['newFilename']), false);
-            $image->save($params['newFilename']);            
+            $this->_createDir(dirname($params['save']['newFilename']), false);
+            $image->save($params['save']['newFilename']);            
         } elseif (isset($params['save']['namespace'])) {
-            $filename = $this->getImagePath($fullFilename, $preset, $params['namespace']);
+            $filename = $this->getImagePath($fullFilename, $preset, $params['save']['namespace']);
             $this->_createDir(dirname($filename), false);
             $image->save($filename);
         }
@@ -277,7 +284,7 @@ class MImageProcessor extends CApplicationComponent
      */
     protected function _afterUploadProcess($directory, $filename)
     {
-        $p = $this->_afterUploadProcess;
+        $p = $this->afterUploadProcess;
         $image = $this->getImageHandler()->load($directory . '/' . $filename);                
         if (isset($p['actions']) && (!isset($p['condition']) ||
             (
