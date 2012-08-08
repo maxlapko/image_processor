@@ -17,11 +17,14 @@ interface IMDriver
      * @param mixed $format
      * @param integer $jpegQuality
      * @param boolean $touch
-     * @return \MDriverAbstract 
+     * @return mixed 
      */
     public function save($file = false, $format = false, $jpegQuality = 75, $touch = false);
     
-    
+    /**
+     * @param string $file
+     * @return mixed 
+     */
     public function load($file);    
 
 }
