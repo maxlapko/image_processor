@@ -44,6 +44,7 @@ we should include to main.php
 
 .htaccess example
 
+```
 AddDefaultCharset UTF-8
 Options +FollowSymlinks
 RewriteEngine on
@@ -57,13 +58,15 @@ RewriteRule ^files/img/([^/]+)/([^/]+)/([^/]+)/([^/]+)$ image_processor/resize/n
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule . index.php 
-
+```
 
 add lines to the top index.php
- 
+
+```php
 if (isset($_SERVER['REDIRECT_URL']) && preg_match('/image_processor\/resize/i', $_SERVER['REDIRECT_URL'])) {
     $_SERVER['REQUEST_URI'] = $_SERVER['REDIRECT_URL'];
 }
+```
 
 MImageBehavior
 
