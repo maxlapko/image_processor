@@ -100,8 +100,24 @@ class MImageBehavior extends CBehavior
     {
         if (file_exists($filename)) {
             unlink($filename);
+            // delete empty sub dirs
+            $dir = dirname($filename);
+            $imageDir = Yii::getPathOfAlias(Yii::app()->getComponent($this->imageProcessor)->imagePath);
+            while ($dir !== $imageDir) {
+                if (count(glob($dir . '/*')) === 0) {
+                    if (rmdir($dir) === false) {
+                        return;
+                    }
+                    $temp = explode(DIRECTORY_SEPARATOR, $dir);
+                    array_pop($temp);
+                    $dir = implode(DIRECTORY_SEPARATOR, $temp);
+                } else {
+                    return;
+                }
+            }            
         }
     }
+    
     
     
 }
