@@ -79,9 +79,16 @@ class MImageBehavior extends CBehavior
     {        
         if (!empty($this->getOwner()->$attribute)) {
             if ($preset !== null) {
-                $this->_unlinkFile($this->getImagePath($attribute, $preset));               
+                $preset = (array) $preset;
+                foreach ($preset as $p) {
+                    if ($p === 'orig') {
+                        $this->_removeOrigFile($attribute);
+                    } else {
+                        $this->_unlinkFile($this->getImagePath($attribute, $p));
+                    }
+                }
             } else {
-                $this->_unlinkFile($this->getImagePath($attribute, 'orig'));
+                $this->_removeOrigFile($attribute);
                 $keys = array_keys(Yii::app()->getComponent($this->imageProcessor)->presets);
                 foreach ($keys as $preset) {
                     $this->_unlinkFile($this->getImagePath($attribute, $preset));
@@ -92,6 +99,19 @@ class MImageBehavior extends CBehavior
         return false;
     }
     
+    /**
+     * Remove orig file and backup if exists
+     * @param string $attribute 
+     */
+    protected function _removeOrigFile($attribute)
+    {
+        $filename = $this->getImagePath($attribute, 'orig');
+        $this->_unlinkFile($filename);
+        $info = pathinfo($filename);
+        $this->_unlinkFile($info['dirname'] . DIRECTORY_SEPARATOR . 'backup_' . $info['basename']);       
+    }
+
+
     /**
      * Delete file if exists 
      * @param string $filename 
