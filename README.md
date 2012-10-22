@@ -29,8 +29,9 @@ Image processor
                 'thumb' => array('width' => 100, 'height'  => 100)
             ),
             'preset2' => array(
-                'resize' => array('width'  => 800, 'height' => 600),
-                'flip'   => array('mode' => 1)
+                'quality' => 100,
+                'resize'  => array('width'  => 800, 'height' => 600),
+                'flip'    => array('mode' => 1)
             ),
             //....
         ),

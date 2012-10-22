@@ -201,6 +201,7 @@ class MDriverImageMagic extends MDriverAbstract
             $format = $this->_format;
         }
         if ($format === 'JPEG' || $format === 'JPG') {
+            $jpegQuality = $this->_quality === null ? $jpegQuality : $this->_quality;
             $this->_image->setCompression(Imagick::COMPRESSION_JPEG);
             $this->_image->setCompressionQuality($jpegQuality);
         }
@@ -230,6 +231,7 @@ class MDriverImageMagic extends MDriverAbstract
         }
         $format = strtoupper($format);
         if ($format === self::IMG_JPEG || $format === 'JPG') {
+            $jpegQuality = $this->_quality === null ? $jpegQuality : $this->_quality;
             $this->_image->setCompression(Imagick::COMPRESSION_JPEG);
             $this->_image->setCompressionQuality($jpegQuality);
         }

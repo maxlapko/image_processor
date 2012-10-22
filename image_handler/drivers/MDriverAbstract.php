@@ -21,6 +21,12 @@ abstract class MDriverAbstract extends CComponent implements IMDriver
     protected $_height = 0;
     protected $_mimeType = '';
     protected $_fileName = '';
+    
+    /**
+     * JPEG quality
+     * @var integer 
+     */
+    protected $_quality = null;
 
     const CORNER_LEFT_TOP = 1;
     const CORNER_RIGHT_TOP = 2;
@@ -209,8 +215,28 @@ abstract class MDriverAbstract extends CComponent implements IMDriver
     public function getMimeType()
     {
         return $this->_mimeType;
-    }         
+    }
     
+    /**
+     * JPEG quality 
+     * @param integer $quality
+     * @return MDriverAbstract 
+     */
+    public function setQuality($quality)
+    {
+        $this->_quality = $quality;
+        return $this;
+    }
+    
+    /**
+     *
+     * @return integer 
+     */
+    public function getQuality()
+    {
+        return $this->_quality;
+    }
+            
     /**
      * Load image
      * 

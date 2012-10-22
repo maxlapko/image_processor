@@ -270,6 +270,7 @@ class MDriverGD extends MDriverAbstract
                 imagegif($this->_image);
                 break;
             case self::IMG_JPEG:
+                $jpegQuality = $this->_quality === null ? $jpegQuality : $this->_quality;
                 header('Content-type: image/jpeg');
                 imagejpeg($this->_image, null, $jpegQuality);
                 break;
@@ -303,6 +304,7 @@ class MDriverGD extends MDriverAbstract
                 }
                 break;
             case self::IMG_JPEG:
+                $jpegQuality = $this->_quality === null ? $jpegQuality : $this->_quality;
                 if (!imagejpeg($this->_image, $file, $jpegQuality)) {
                     throw new Exception('Can\'t save jpeg file');
                 }

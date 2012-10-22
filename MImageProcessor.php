@@ -36,9 +36,10 @@
  *                 'thumb' => array('width' => 100, 'height' => 100)
  *             ),
  *             'preset2' => array(
- *                 'resize' => array('width' => 800, 'height' => 600),
- *                 'flip'   => array('mode' => 1),
- *                 'rotate' => array('degrees' => 90, 'backgroundColor' => '#000000'),
+ *                 'quality' => 90,
+ *                 'resize'  => array('width' => 800, 'height' => 600),
+ *                 'flip'    => array('mode' => 1),
+ *                 'rotate'  => array('degrees' => 90, 'backgroundColor' => '#000000'),
  *                 'resizeCanvas' => array('width' => 1024, 'height' => '768'),
  *             ),
  *             // ......
@@ -94,13 +95,13 @@ class MImageProcessor extends CApplicationComponent
     
     /**
      *
-     * @var CComponent 
+     * @var MDriverAbstract 
      */
     protected $_handler;
     
     
     /**
-     * @return CComponent
+     * @return MDriverAbstract
      */
     public function getImageHandler()
     {
@@ -203,11 +204,18 @@ class MImageProcessor extends CApplicationComponent
         $this->_process($image, $actions);        
         if (isset($params['save']['newFilename'])) {
             $this->_createDir(dirname($params['save']['newFilename']), false);
-            $image->save($params['save']['newFilename']);            
+            $filename = $params['save']['newFilename'];                        
         } elseif (isset($params['save']['namespace'])) {
             $filename = $this->getImagePath($fullFilename, $preset, $params['save']['namespace']);
             $this->_createDir(dirname($filename), false);
-            $image->save($filename);
+        }
+        if (isset($filename)) {
+            $image->save(
+                $filename,
+                isset($params['save']['format']) ? $params['save']['format'] : false,
+                isset($params['save']['quality']) ? $params['save']['quality'] : 75,
+                isset($params['save']['touch']) ? $params['save']['touch'] : false
+            );            
         }
         return $image;
     }
@@ -220,13 +228,17 @@ class MImageProcessor extends CApplicationComponent
     protected function _process($image, $actions)
     {
         foreach ($actions as $method => $params) {
-            $refMethod = new ReflectionMethod($image, $method);
-            if ($refMethod->getNumberOfParameters() > 0) {
-                if ($this->_runWithParams($image, $refMethod, $params) === false) {
-                    throw new Exception('Invalid params for "' . $method . '" method.');
-                }
-            } else {
-                $image->$method();
+            if (is_array($params)) {
+                $refMethod = new ReflectionMethod($image, $method);
+                if ($refMethod->getNumberOfParameters() > 0) {
+                    if ($this->_runWithParams($image, $refMethod, $params) === false) {
+                        throw new Exception('Invalid params for "' . $method . '" method.');
+                    }
+                } else {
+                    $image->$method();
+                }                
+            } else { // setter for image handler
+                $image->$method = $params; 
             }
         }        
     }
