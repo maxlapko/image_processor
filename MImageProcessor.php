@@ -115,7 +115,7 @@ class MImageProcessor extends CApplicationComponent
     /**
      * Upload file
      *
-     * @param CUploadedFile $image
+     * @param CUploadedFile|string $image
      * @param string $namespace
      * @return mixed
      */
@@ -269,16 +269,20 @@ class MImageProcessor extends CApplicationComponent
 
     /**
      * Save image to disk
-     * @param CUploadedFile $image
+     * @param CUploadedFile|string $image if string - full path to file
      * @param string $namespace
      */
     protected function _save($image, $namespace)
     {
-        $filename = uniqid() . '.' . $image->getExtensionName();
+        $isObject = $image instanceof CUploadedFile;
+        $filename = uniqid() . '.' . ($isObject ? $image->getExtensionName() : pathinfo($image, PATHINFO_EXTENSION));
         $directory = $this->_createDir("/$namespace/orig/" . $this->getSubDir($filename));
         $fullName = $directory . '/' . $filename;
-        $image->saveAs($fullName);
-        
+        if ($isObject) {
+            $image->saveAs($fullName);
+        } else {
+            rename($image, $fullName);
+        }
         if ($this->afterUploadProcess !== null) {
             $this->_afterUploadProcess($directory, $filename);
         }
