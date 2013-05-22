@@ -58,11 +58,15 @@ class MImageBehavior extends CBehavior
      * Upload image
      * @param CUploadedFile $image
      * @param string $attribute
+     * @param boolean $deleteOld
      * @return boolean 
      */
-    public function uploadImage($image, $attribute)
+    public function uploadImage($image, $attribute, $deleteOld = true)
     {
         if ($image !== null) {
+            if ($deleteOld) {
+                $this->deleteImage($attribute);
+            }
             $image = Yii::app()->getComponent($this->imageProcessor)->upload($image, get_class($this->getOwner()));
             $this->getOwner()->$attribute = $image['filename'];
             return true;
